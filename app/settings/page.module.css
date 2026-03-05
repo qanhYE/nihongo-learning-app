@@ -1,0 +1,76 @@
+.header {
+    padding: 40px 0 20px;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.settingItem {
+    margin-bottom: 25px;
+}
+
+.settingItem label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+}
+
+.desc a {
+    color: var(--accent);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.status {
+    color: var(--success);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.dangerZone {
+    margin-top: 30px;
+    border: 1px solid rgba(230, 57, 70, 0.3);
+    padding: 20px;
+    border-radius: 12px;
+    background: rgba(230, 57, 70, 0.05);
+}
+
+.dangerZone h2 {
+    color: var(--accent);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.btnDanger {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btnDanger:hover {
+    opacity: 0.9;
+}

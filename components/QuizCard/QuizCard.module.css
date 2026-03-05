@@ -1,0 +1,90 @@
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.progress {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+}
+
+.question {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.questionJp {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+    background: var(--bg-surface);
+    padding: 20px;
+    border-radius: var(--radius-md);
+}
+
+.inputArea {
+    margin: 25px 0;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.textInput {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.correctAnswerText {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.correctAnswerText strong {
+    color: var(--success);
+}
+
+.correctOpt {
+    background: var(--success) !important;
+    color: #fff !important;
+}
+
+.wrongOpt {
+    background: var(--danger) !important;
+    color: #fff !important;
+}
+
+.correctInput {
+    border-color: var(--success) !important;
+}
+
+.wrongInput {
+    border-color: var(--danger) !important;
+}
+
+.explanation {
+    margin-top: 15px;
+    padding: 15px;
+    background: var(--accent-dim);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.actions {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.actions button {
+    width: 100%;
+}
+
+.done {
+    text-align: center;
+    padding: 50px;
+}

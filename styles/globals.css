@@ -1,0 +1,339 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ─── DESIGN TOKENS ─────────────────────────────────────────── */
+:root {
+  --bg-base:       #0f0f13;
+  --bg-surface:    #17171f;
+  --bg-elevated:   #1e1e2a;
+  --bg-card:       #23232f;
+
+  --accent:        #e63946;
+  --accent-hover:  #ff4d5a;
+  --accent-dim:    rgba(230, 57, 70, 0.15);
+
+  --success:       #4ade80;
+  --warning:       #facc15;
+  --danger:        #f87171;
+  --info:          #60a5fa;
+
+  --text-primary:  #f0f0f4;
+  --text-secondary:#a0a0b0;
+  --text-muted:    #606070;
+
+  --border:        rgba(255,255,255,0.08);
+  --border-accent: rgba(230,57,70,0.4);
+
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   18px;
+  --radius-xl:   24px;
+
+  --shadow-sm:  0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md:  0 4px 20px rgba(0,0,0,0.4);
+  --shadow-lg:  0 8px 40px rgba(0,0,0,0.5);
+  --shadow-accent: 0 4px 24px rgba(230,57,70,0.25);
+
+  --transition: 0.2s ease;
+  --font-jp: 'Noto Sans JP', sans-serif;
+  --font-ui: 'Inter', sans-serif;
+}
+
+/* ─── FURIGANA TOGGLE ───────────────────────────────────────── */
+/* Global toggle: add class .furigana-hidden on <html> to hide all furigana */
+html.furigana-hidden ruby rt { display: none; }
+
+/* ─── RESET & BASE ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Japanese text */
+.jp { font-family: var(--font-jp); }
+ruby { ruby-align: center; }
+rt   {
+  font-size: 0.55em;
+  color: var(--text-secondary);
+  font-family: var(--font-jp);
+  letter-spacing: 0.05em;
+}
+
+/* ─── LAYOUT ────────────────────────────────────────────────── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+.page-content {
+  padding-top: 72px; /* navbar height */
+  min-height: 100vh;
+}
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ─── CARDS ─────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.card:hover { border-color: var(--border-accent); box-shadow: var(--shadow-md); }
+
+.card-glass {
+  background: rgba(35, 35, 47, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* ─── BUTTONS ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn-sm  { padding: 8px 16px;  font-size: 13px; }
+.btn-md  { padding: 11px 22px; font-size: 14px; }
+.btn-lg  { padding: 14px 28px; font-size: 16px; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--shadow-accent);
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(230,57,70,0.4);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+.btn-surface {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+.btn-surface:hover { background: var(--bg-card); }
+
+/* SRS rating buttons */
+.btn-srs-bad    { background: rgba(248,113,113,0.15); color: var(--danger);  border: 1px solid rgba(248,113,113,0.3); }
+.btn-srs-hard   { background: rgba(250,204,21,0.12);  color: var(--warning); border: 1px solid rgba(250,204,21,0.3);  }
+.btn-srs-good   { background: rgba(74,222,128,0.12);  color: var(--success); border: 1px solid rgba(74,222,128,0.3);  }
+.btn-srs-easy   { background: rgba(96,165,250,0.12);  color: var(--info);    border: 1px solid rgba(96,165,250,0.3);  }
+.btn-srs-bad:hover  { background: rgba(248,113,113,0.28); }
+.btn-srs-hard:hover { background: rgba(250,204,21,0.24);  }
+.btn-srs-good:hover { background: rgba(74,222,128,0.24);  }
+.btn-srs-easy:hover { background: rgba(96,165,250,0.24);  }
+
+/* ─── BADGES & CHIPS ────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.badge-red    { background: rgba(230,57,70,0.15);   color: var(--accent);  }
+.badge-green  { background: rgba(74,222,128,0.12);  color: var(--success); }
+.badge-yellow { background: rgba(250,204,21,0.12);  color: var(--warning); }
+.badge-blue   { background: rgba(96,165,250,0.12);  color: var(--info);    }
+.badge-muted  { background: var(--bg-elevated);     color: var(--text-muted); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+.chip.active {
+  background: var(--accent-dim);
+  border-color: var(--border-accent);
+  color: var(--accent);
+}
+
+/* ─── STATUS DOTS ───────────────────────────────────────────── */
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-mastered  { background: var(--success); }
+.status-learning  { background: var(--warning); }
+.status-reinforce { background: var(--danger);  }
+.status-new       { background: var(--text-muted); }
+
+/* ─── FORMS ─────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--text-muted); }
+
+/* ─── PROGRESS BAR ──────────────────────────────────────────── */
+.progress-bar {
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #ff6b6b);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* ─── STATS CARD ─────────────────────────────────────────────── */
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.stat-label { font-size: 13px; color: var(--text-muted); }
+
+/* ─── DIVIDERS ───────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* ─── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── ANIMATIONS ─────────────────────────────────────────────── */
+@keyframes fadeIn  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse   { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes spin    { to { transform: rotate(360deg); } }
+
+.fade-in  { animation: fadeIn  0.3s ease both; }
+.slide-up { animation: slideUp 0.4s ease both; }
+
+/* ─── LOADING ────────────────────────────────────────────────── */
+.spinner {
+  width: 24px; height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ─── FURIGANA TOGGLE BUTTON ─────────────────────────────────── */
+.furigana-btn {
+  font-family: var(--font-jp);
+  font-size: 16px;
+  font-weight: 700;
+  width: 38px; height: 38px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.furigana-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--border-accent);
+  color: var(--accent);
+}
+.furigana-btn:hover { border-color: var(--border-accent); }
+
+/* ─── FLASHCARD 3D ───────────────────────────────────────────── */
+.flashcard-scene {
+  perspective: 1000px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  aspect-ratio: 1.6;
+}
+.flashcard-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+}
+.flashcard-inner.flipped { transform: rotateY(180deg); }
+.flashcard-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  cursor: pointer;
+}
+.flashcard-face.back { transform: rotateY(180deg); }
+.flashcard-face:hover { border-color: var(--border-accent); }
+
+/* ─── RESPONSIVE NAV ─────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .container { padding: 0 14px; }
+  .stat-value { font-size: 1.5rem; }
+}

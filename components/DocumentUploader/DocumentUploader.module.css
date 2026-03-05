@@ -1,0 +1,73 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.typeRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.typeLabel {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
+
+.dropZone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-xl);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--bg-elevated);
+}
+
+.dropZone:hover,
+.dragging {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+}
+
+.busy {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.hidden {
+    display: none;
+}
+
+.idleState,
+.processingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 32px;
+    text-align: center;
+}
+
+.uploadIcon {
+    font-size: 3rem;
+}
+
+.uploadTitle {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.uploadSub {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.cameraBtn {
+    margin-top: 4px;
+}

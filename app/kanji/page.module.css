@@ -1,0 +1,52 @@
+.header {
+    padding: 40px 0 20px;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    background: var(--bg-surface);
+    padding: 20px;
+    border-radius: var(--radius-lg);
+}
+
+.kanjiGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    padding-bottom: 40px;
+}
+
+.kanjiGrid ruby {
+    font-size: 1.5rem;
+    display: block;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.entryMeaning {
+    font-size: 0.9rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.entryType {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.empty {
+    text-align: center;
+    padding: 100px 0;
+}
+
+.empty a {
+    color: var(--accent);
+}

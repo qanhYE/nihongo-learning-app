@@ -1,0 +1,71 @@
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.top {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.mainKanji {
+    font-size: 4rem;
+    font-weight: bold;
+}
+
+.meaning {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    margin-top: 10px;
+}
+
+.details {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.readings {
+    display: flex;
+    justify-content: space-around;
+    font-size: 1.1rem;
+}
+
+.readingItem strong {
+    color: var(--accent);
+}
+
+.baseKanji {
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.examples {
+    padding: 20px 0;
+}
+
+.examples h4 {
+    margin-bottom: 10px;
+    color: var(--text-muted);
+}
+
+.exampleItem {
+    margin-bottom: 15px;
+}
+
+.exMeaning {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.empty {
+    text-align: center;
+    padding: 50px;
+}

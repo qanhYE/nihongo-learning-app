@@ -1,0 +1,181 @@
+.hero {
+    padding: 48px 0 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.heroText h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.heroText p {
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+
+.dailyCta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(230, 57, 70, 0.18) 0%, rgba(230, 57, 70, 0.06) 100%);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all var(--transition);
+}
+
+.dailyCta:hover {
+    background: linear-gradient(135deg, rgba(230, 57, 70, 0.28) 0%, rgba(230, 57, 70, 0.1) 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-accent);
+}
+
+.dailyIcon {
+    font-size: 2rem;
+}
+
+.dailyInfo {
+    flex: 1;
+}
+
+.dailyLabel {
+    display: block;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.dailySub {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.dailyArrow {
+    font-size: 20px;
+    color: var(--accent);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.progressSection {
+    margin-bottom: 40px;
+}
+
+.progressHeader {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.moduleGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.moduleCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 24px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all var(--transition);
+    text-align: center;
+}
+
+.moduleCard:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-elevated);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.moduleIcon {
+    font-size: 2rem;
+    font-family: var(--font-jp);
+}
+
+.moduleName {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.moduleDesc {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.emptyState {
+    text-align: center;
+    padding: 64px 20px;
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-xl);
+    margin-bottom: 40px;
+}
+
+.emptyIcon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.emptyState h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.emptyState p {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .moduleGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .heroText h1 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 24px 0 16px;
+    }
+
+    .dailyCta {
+        padding: 14px 16px;
+    }
+}
