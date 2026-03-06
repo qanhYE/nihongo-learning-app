@@ -4,7 +4,3 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0" apply false
 }
 
-tasks.register<Delete>("clean") {
-    delete(rootProject.buildDir)
-}
-
