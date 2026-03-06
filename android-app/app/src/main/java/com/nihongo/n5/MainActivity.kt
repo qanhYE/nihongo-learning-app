@@ -6,9 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.nihongo.n5.data.AppDatabase
+import com.nihongo.n5.ui.AppNavigation
 import com.nihongo.n5.ui.theme.NihongoN5Theme
 
 class MainActivity : ComponentActivity() {
@@ -28,13 +28,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
 }
