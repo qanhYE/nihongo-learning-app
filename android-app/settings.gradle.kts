@@ -15,5 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "NihongoN5"
 include(":app")
-Line 1: 
 
