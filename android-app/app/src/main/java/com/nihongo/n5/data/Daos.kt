@@ -16,10 +16,12 @@ interface LessonDao {
 
     @Query("SELECT * FROM grammar WHERE lessonId = :lessonId")
     fun getGrammarByLesson(lessonId: Long): Flow<List<Grammar>>
-    
+
     @Query("DELETE FROM lessons WHERE id = :lessonId")
     suspend fun deleteLesson(lessonId: Long)
 
+    @Query("DELETE FROM lessons")
+    suspend fun deleteAllLessons()
 }
 
 @Dao
@@ -27,11 +29,26 @@ interface VocabularyDao {
     @Query("SELECT * FROM vocabulary")
     fun getAllVocab(): Flow<List<Vocabulary>>
 
+    @Query("SELECT COUNT(*) FROM vocabulary")
+    fun getVocabCount(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(vocab: List<Vocabulary>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllGrammar(grammar: List<Grammar>)
+
     @Update
     suspend fun updateVocab(vocab: Vocabulary)
+
+    @Query("DELETE FROM vocabulary")
+    suspend fun deleteAllVocab()
+
+    @Query("SELECT * FROM grammar")
+    fun getAllGrammar(): Flow<List<Grammar>>
+
+    @Query("SELECT COUNT(*) FROM grammar")
+    fun getGrammarCount(): Flow<Int>
 }
 
 @Dao
@@ -47,4 +64,16 @@ interface KanjiDao {
 
     @Query("SELECT * FROM kanji_entries WHERE kanjiSetId = :setId")
     fun getEntriesBySet(setId: Long): Flow<List<KanjiEntry>>
+
+    @Query("SELECT * FROM kanji_entries")
+    fun getAllEntries(): Flow<List<KanjiEntry>>
+
+    @Query("SELECT COUNT(*) FROM kanji_entries")
+    fun getKanjiCount(): Flow<Int>
+
+    @Query("DELETE FROM kanji_sets")
+    suspend fun deleteAllSets()
+
+    @Query("DELETE FROM kanji_entries")
+    suspend fun deleteAllEntries()
 }
