@@ -110,7 +110,11 @@ export default function DailyPracticePage() {
                     <div className={styles.newWordsGrid}>
                         {newVocab.map(v => (
                             <div key={v.id} className="card">
-                                <ruby className="jp" style={{ fontSize: '2rem' }}>{v.kanji}<rt>{v.hiragana}</rt></ruby>
+                                <ruby className="jp" style={{ fontSize: '2rem' }}>
+                                    {v.kanji || v.hiragana}
+                                    {v.kanji && v.kanji !== v.hiragana && <rt>{v.hiragana}</rt>}
+                                </ruby>
+
                                 <div style={{ marginTop: 10 }}>{v.meaning}</div>
                             </div>
                         ))}

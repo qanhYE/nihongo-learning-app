@@ -238,9 +238,9 @@ export async function classifyKanjiPages(
 
       onProgress?.(i + 1, pages.length)
 
-      const prompt = `OCR tài liệu học Kanji JLPT N5.
+      const prompt = `OCR tài liệu học Kanji JLPT N5 cho người Việt.
 
-Trích xuất kanji đơn và từ ghép.
+Trích xuất kanji đơn và từ ghép. TẤT CẢ nghĩa (meaning) PHẢI bằng TIẾNG VIỆT.
 
 JSON:
 
@@ -248,19 +248,19 @@ JSON:
 "kanjiEntries":[
 {
 "type":"single|compound",
-"form":"",
-"reading":"",
-"meaning":"",
-"onyomi":"",
-"kunyomi":"",
-"strokeNotes":"",
+"form":"漢字 hoặc từ ghép",
+"reading":"cách đọc bằng hiragana",
+"meaning":"nghĩa TIẾNG VIỆT (VD: nước, lửa, núi)",
+"onyomi":"âm on bằng katakana",
+"kunyomi":"âm kun bằng hiragana",
 "baseKanji":[],
 "usageExamples":[
-{"sentence":"","reading":"","meaning":""}
+{"sentence":"câu ví dụ","reading":"cách đọc","meaning":"nghĩa tiếng Việt"}
 ]
 }
 ]
 }`
+
 
       const base64 = stripBase64Prefix(page)
 
@@ -313,12 +313,36 @@ export async function generateQuizQuestions(
 
   const model = getClient(apiKey)
 
-  const prompt = `Tạo ${count} câu hỏi quiz JLPT N5 cho người Việt.
+  const prompt = `Bạn là giáo viên tiếng Nhật. Tạo chính xác ${count} câu hỏi quiz JLPT N5 cho người Việt từ dữ liệu sau.
 
 Dữ liệu:
 ${JSON.stringify(items.slice(0, 50), null, 2)}
 
-Trả JSON array QuizQuestion.`
+MỖI câu hỏi PHẢI có đúng cấu trúc JSON sau:
+{
+  "id": "q1",
+  "type": "meaning_mc",
+  "question": "Câu hỏi bằng tiếng Việt (BẮT BUỘC, KHÔNG ĐƯỢC ĐỂ TRỐNG)",
+  "questionJp": "Phần tiếng Nhật nếu có",
+  "options": ["A", "B", "C", "D"],
+  "correctAnswer": "đáp án đúng (phải nằm trong options)",
+  "explanation": "giải thích ngắn gọn",
+  "itemId": 1,
+  "itemType": "vocab"
+}
+
+QUY TẮC BẮT BUỘC:
+- "question" PHẢI có nội dung câu hỏi rõ ràng bằng tiếng Việt, VÍ DỤ: "Từ 'たべます' có nghĩa là gì?"
+- "type" PHẢI là một trong: "meaning_mc", "fill_blank", "translate_nj_tv", "translate_tv_nj", "kanji_kana"
+- Nếu type là "meaning_mc", "translate_nj_tv" hoặc "fill_blank" thì BẮT BUỘC có "options" (array 4 lựa chọn)
+- Nếu type là "translate_tv_nj" hoặc "kanji_kana" thì KHÔNG cần options (người dùng tự nhập)
+- "correctAnswer" phải chính xác khớp với một trong các options (nếu có options)
+- "itemId" và "itemType" phải lấy từ dữ liệu đầu vào
+- "id" tăng dần: "q1", "q2", ...
+
+Ưu tiên tạo câu hỏi trắc nghiệm (meaning_mc) để dễ làm hơn.
+
+Trả về ĐÚNG JSON array, không thêm text nào khác.`
 
   const parsed = await retry(async () => {
 
@@ -333,11 +357,21 @@ Trả JSON array QuizQuestion.`
       throw new Error("Invalid JSON")
     }
 
+    // Validate: ensure every question has the required 'question' field
+    for (const q of json) {
+      if (!q.question || q.question.trim() === '') {
+        q.question = q.questionJp
+          ? `Câu hỏi về: ${q.questionJp}`
+          : `Câu hỏi #${q.id}`
+      }
+    }
+
     return json
   })
 
   return parsed
 }
+
 
 /* ─────────────────────────────────────────────
    MNEMONIC

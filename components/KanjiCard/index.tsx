@@ -54,13 +54,10 @@ export default function KanjiCard({ entries, onComplete }: Props) {
                     {entry.type === 'single' && (
                         <div className={styles.readings}>
                             <div className={styles.readingItem}>
-                                <strong>On:</strong> {entry.onyomi || '—'}
+                                <strong>On:</strong> <span className="jp">{entry.onyomi || '—'}</span>
                             </div>
                             <div className={styles.readingItem}>
-                                <strong>Kun:</strong> {entry.kunyomi || '—'}
-                            </div>
-                            <div className={styles.readingItem}>
-                                <strong>Nét:</strong> {entry.strokeNotes || '—'}
+                                <strong>Kun:</strong> <span className="jp">{entry.kunyomi || '—'}</span>
                             </div>
                         </div>
                     )}
@@ -77,12 +74,16 @@ export default function KanjiCard({ entries, onComplete }: Props) {
                         <h4>Ví dụ:</h4>
                         {entry.usageExamples.map((ex, i) => (
                             <div key={i} className={styles.exampleItem}>
-                                <div className="jp">{ex.sentence}</div>
+                                <ruby className="jp">
+                                    {ex.sentence}
+                                    {ex.reading && <rt>{ex.reading}</rt>}
+                                </ruby>
                                 <div className={styles.exMeaning}>{ex.meaning}</div>
                             </div>
                         ))}
                     </div>
                 )}
+
 
                 <div className={styles.actions}>
                     <button

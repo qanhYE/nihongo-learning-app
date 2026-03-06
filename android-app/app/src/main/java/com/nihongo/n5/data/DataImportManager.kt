@@ -34,7 +34,7 @@ data class VocabRaw(
     val id: Long? = null,
     val lessonId: Long = 0,
     val hiragana: String = "",
-    val kanji: String = "",
+    val kanji: String? = null,
     val meaning: String = "",
     val verbGroup: String? = null,
     val status: String = "new"
@@ -135,7 +135,7 @@ class DataImportManager(private val context: Context) {
                 Vocabulary(
                     lessonId = lessonIdMap[raw.lessonId] ?: raw.lessonId,
                     hiragana = raw.hiragana,
-                    kanji = raw.kanji.ifEmpty { null },
+                    kanji = raw.kanji?.ifEmpty { null },
                     meaning = raw.meaning,
                     verbGroup = raw.verbGroup,
                     status = raw.status

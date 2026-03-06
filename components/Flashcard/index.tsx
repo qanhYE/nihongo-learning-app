@@ -88,8 +88,8 @@ export default function Flashcard({ cards, onComplete }: Props) {
                     <div className="flashcard-face">
                         <div className={styles.cardType}>{card.verbGroup ? `Động từ nhóm ${card.verbGroup}` : 'Từ vựng'}</div>
                         <ruby className={styles.cardMain}>
-                            <span className="jp">{card.kanji}</span>
-                            <rt>{card.hiragana}</rt>
+                            <span className="jp">{card.kanji || card.hiragana}</span>
+                            {card.kanji && card.kanji !== card.hiragana && <rt>{card.hiragana}</rt>}
                         </ruby>
                         <p className={styles.flipHint}>Nhấn để xem nghĩa</p>
                     </div>
@@ -97,8 +97,8 @@ export default function Flashcard({ cards, onComplete }: Props) {
                     {/* Back */}
                     <div className="flashcard-face back">
                         <ruby className={styles.cardMainSm}>
-                            <span className="jp">{card.kanji}</span>
-                            <rt>{card.hiragana}</rt>
+                            <span className="jp">{card.kanji || card.hiragana}</span>
+                            {card.kanji && card.kanji !== card.hiragana && <rt>{card.hiragana}</rt>}
                         </ruby>
                         <div className={styles.meaning}>{card.meaning}</div>
                         {card.verbGroup && (

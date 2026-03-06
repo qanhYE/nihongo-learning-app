@@ -36,6 +36,12 @@ export async function updateSRS(
     itemType: SrsRecord['itemType'],
     score: 0 | 1 | 2 | 3 | 4 | 5
 ): Promise<void> {
+    // Guard: skip if itemId or itemType is invalid
+    if (itemId == null || itemType == null) {
+        console.warn('[SRS] skipped update: invalid itemId or itemType', { itemId, itemType })
+        return
+    }
+
     const existing = await db.srsRecords
         .where('[itemId+itemType]')
         .equals([itemId, itemType])
@@ -55,7 +61,33 @@ export async function updateSRS(
     } else {
         await db.srsRecords.add({ ...defaults, ...updated })
     }
+
+    // Sync vocabulary status based on SRS progress
+    if (itemType === 'vocab') {
+        const newReps = updated.repetitions
+        let newStatus: 'learning' | 'mastered' | undefined
+        if (newReps >= 3 && score >= 4) {
+            newStatus = 'mastered'
+        } else if (score >= 3) {
+            newStatus = 'learning'
+        }
+        if (newStatus) {
+            const vocab = await db.vocabulary.get(itemId)
+            if (vocab && vocab.status !== newStatus) {
+                // Don't downgrade from mastered to learning
+                if (!(vocab.status === 'mastered' && newStatus === 'learning')) {
+                    await db.vocabulary.update(itemId, { status: newStatus })
+                }
+            }
+        }
+        // If score is very low, reset to learning
+        if (score <= 1) {
+            await db.vocabulary.update(itemId, { status: 'learning' })
+        }
+    }
 }
+
+
 
 // ─── GET DUE ITEMS ────────────────────────────────────────────────
 
@@ -96,11 +128,33 @@ export interface WeightedItem {
 export async function getWeightedQuizPool(count: number): Promise<WeightedItem[]> {
     const allRecords = await db.srsRecords.toArray()
 
+    // If no SRS records exist yet, build pool from ALL data directly
+    if (allRecords.length === 0) {
+        const pool: WeightedItem[] = []
+        const allVocab = await db.vocabulary.toArray()
+        const allGrammar = await db.grammar.toArray()
+        const allKanji = await db.kanjiEntries.toArray()
+
+        for (const v of allVocab) {
+            if (v.id != null) pool.push({ itemId: v.id, itemType: 'vocab', weight: 2 })
+        }
+        for (const g of allGrammar) {
+            if (g.id != null) pool.push({ itemId: g.id, itemType: 'grammar', weight: 2 })
+        }
+        for (const k of allKanji) {
+            if (k.id != null) pool.push({ itemId: k.id, itemType: 'kanji', weight: 1 })
+        }
+
+        // Shuffle and take `count`
+        const shuffled = pool.sort(() => Math.random() - 0.5)
+        return shuffled.slice(0, count)
+    }
+
     const weighted: WeightedItem[] = allRecords.map(r => {
         let weight = 1
-        if (r.lastScore <= 2) weight = 3   // sai → xuất hiện nhiều hơn
-        if (r.repetitions >= 5) weight *= 0.3 // thành thạo → ít hơn
-        if (r.repetitions === 0) weight = 2   // chưa từng ôn → ưu tiên
+        if (r.lastScore <= 2) weight = 3
+        if (r.repetitions >= 5) weight *= 0.3
+        if (r.repetitions === 0) weight = 2
         return { itemId: r.itemId, itemType: r.itemType, weight }
     })
 
@@ -123,6 +177,7 @@ export async function getWeightedQuizPool(count: number): Promise<WeightedItem[]
 
     return selected
 }
+
 
 // ─── STREAK ───────────────────────────────────────────────────────
 

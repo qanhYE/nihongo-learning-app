@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import DocumentUploader from '@/components/DocumentUploader'
+import DocumentUploader, { type BatchFileResult, parseFileName } from '@/components/DocumentUploader'
+import type { PdfType } from '@/components/DocumentUploader'
 import { db } from '@/lib/db'
 import type { Vocabulary, Grammar, KanjiEntry, KanjiSet } from '@/lib/db'
 import styles from './page.module.css'
@@ -11,61 +12,73 @@ type PreviewData = {
     grammar: Omit<Grammar, 'id' | 'lessonId'>[]
     kanjiEntries?: Omit<KanjiEntry, 'id' | 'kanjiSetId'>[]
     fileName: string
-    pdfType: 'bai' | 'kanji' | 'auto'
+    pdfType: PdfType
+}
+
+// Group batch results by lesson number
+type GroupedLesson = {
+    lessonNumber: string
+    files: BatchFileResult[]
+    vocabulary: any[]
+    grammar: any[]
+    kanjiEntries: any[]
+    pdfType: PdfType
+}
+
+function groupByLesson(results: BatchFileResult[]): GroupedLesson[] {
+    const map = new Map<string, GroupedLesson>()
+
+    for (const r of results) {
+        const parsed = parseFileName(r.fileName)
+        const key = `${parsed.pdfType}_${parsed.lessonNumber}`
+
+        if (!map.has(key)) {
+            map.set(key, {
+                lessonNumber: parsed.lessonNumber,
+                files: [],
+                vocabulary: [],
+                grammar: [],
+                kanjiEntries: [],
+                pdfType: parsed.pdfType,
+            })
+        }
+        const group = map.get(key)!
+        group.files.push(r)
+        group.vocabulary.push(...(r.data.vocabulary ?? []))
+        group.grammar.push(...(r.data.grammar ?? []))
+        group.kanjiEntries.push(...(r.data.kanjiEntries ?? []))
+    }
+
+    return Array.from(map.values())
 }
 
 export default function UploadPage() {
     const [preview, setPreview] = useState<PreviewData | null>(null)
+    const [batchGroups, setBatchGroups] = useState<GroupedLesson[]>([])
     const [error, setError] = useState('')
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
 
     async function handleSave() {
-        if (!preview) return
+        if (!preview && batchGroups.length === 0) return
         setSaving(true)
         try {
-            const isKanji = preview.pdfType === 'kanji' ||
-                (preview.pdfType === 'auto' && (preview.kanjiEntries?.length ?? 0) > 0 && (preview.vocabulary?.length ?? 0) === 0)
-
-            if (isKanji) {
-                // Save as KanjiSet
-                // Pattern: kanji_1.png -> Kanji 1
-                let setId = preview.fileName.replace(/\.[^.]+$/, '')
-                if (setId.toLowerCase().startsWith('kanji_')) {
-                    const num = setId.match(/\d+/)?.[0]
-                    setId = num ? `Kanji ${num}` : setId.replace('kanji_', 'Kanji ')
-                } else {
-                    setId = setId.slice(0, 20)
+            if (batchGroups.length > 0) {
+                // Batch save
+                for (const group of batchGroups) {
+                    await saveGroup(group)
                 }
-
-                const kanjiSetId = await db.kanjiSets.add({
-                    setId, pdfSource: preview.fileName, createdAt: Date.now(),
-                } as KanjiSet)
-                const entries = (preview.kanjiEntries ?? []).map(e => ({
-                    ...e, kanjiSetId, usageExamples: e.usageExamples ?? [],
-                }))
-                await db.kanjiEntries.bulkAdd(entries as KanjiEntry[])
-            } else {
-                // Save as Lesson + vocab + grammar
-                // Pattern: bai_1.png -> Bài 1
-                const lessonNumber = preview.fileName.match(/\d+/)?.[0] ?? '?'
-                const title = preview.fileName.toLowerCase().includes('bai')
-                    ? `Bài ${lessonNumber}`
-                    : preview.fileName.replace(/\.[^.]+$/, '').slice(0, 30)
-
-                const lessonId = await db.lessons.add({
-                    title,
-                    lessonNumber,
-                    pdfSource: preview.fileName,
-                    createdAt: Date.now(),
+            } else if (preview) {
+                // Single file save (backwards compatible)
+                const parsed = parseFileName(preview.fileName)
+                await saveGroup({
+                    lessonNumber: parsed.lessonNumber,
+                    files: [{ fileName: preview.fileName, pdfType: preview.pdfType, lessonNumber: parsed.lessonNumber, data: preview }],
+                    vocabulary: preview.vocabulary ?? [],
+                    grammar: preview.grammar ?? [],
+                    kanjiEntries: preview.kanjiEntries ?? [],
+                    pdfType: preview.pdfType,
                 })
-                const vocabs = preview.vocabulary.map(v => ({
-                    ...v, lessonId, status: 'new' as const,
-                }))
-                await db.vocabulary.bulkAdd(vocabs)
-                await db.grammar.bulkAdd(
-                    preview.grammar.map(g => ({ ...g, lessonId }))
-                )
             }
             setSaved(true)
         } finally {
@@ -73,11 +86,60 @@ export default function UploadPage() {
         }
     }
 
+    async function saveGroup(group: GroupedLesson) {
+        const isKanji = group.pdfType === 'kanji' ||
+            (group.pdfType === 'auto' && (group.kanjiEntries.length) > 0 && group.vocabulary.length === 0)
+
+        if (isKanji) {
+            const setId = `Kanji ${group.lessonNumber}`
+            const kanjiSetId = await db.kanjiSets.add({
+                setId, pdfSource: group.files.map(f => f.fileName).join(', '), createdAt: Date.now(),
+            } as KanjiSet)
+            const entries = group.kanjiEntries.map((e: any) => ({
+                ...e, kanjiSetId, usageExamples: e.usageExamples ?? [],
+            }))
+            await db.kanjiEntries.bulkAdd(entries as KanjiEntry[])
+        } else {
+            const title = `Bài ${group.lessonNumber}`
+            const lessonId = await db.lessons.add({
+                title,
+                lessonNumber: group.lessonNumber,
+                pdfSource: group.files.map(f => f.fileName).join(', '),
+                createdAt: Date.now(),
+            })
+            const vocabs = group.vocabulary.map((v: any) => ({
+                ...v, lessonId, status: 'new' as const,
+            }))
+            if (vocabs.length > 0) await db.vocabulary.bulkAdd(vocabs)
+            if (group.grammar.length > 0) {
+                await db.grammar.bulkAdd(
+                    group.grammar.map((g: any) => ({ ...g, lessonId }))
+                )
+            }
+        }
+    }
+
+    const totalVocab = batchGroups.reduce((s, g) => s + g.vocabulary.length, 0) + (preview?.vocabulary?.length ?? 0)
+    const totalGrammar = batchGroups.reduce((s, g) => s + g.grammar.length, 0) + (preview?.grammar?.length ?? 0)
+    const totalKanji = batchGroups.reduce((s, g) => s + g.kanjiEntries.length, 0) + (preview?.kanjiEntries?.length ?? 0)
+    const hasPreview = preview || batchGroups.length > 0
+
     return (
         <div className="container">
             <div className={styles.header}>
                 <h1>Tải tài liệu lên</h1>
-                <p>Upload PDF hoặc ảnh chụp bài học. Gemini Vision sẽ tự động trích xuất nội dung.</p>
+                <p>Upload nhiều ảnh cùng lúc. Đặt tên file theo mẫu để tự động phân loại.</p>
+            </div>
+
+            {/* Hướng dẫn đặt tên */}
+            <div className="card" style={{ marginBottom: 16, padding: 16 }}>
+                <h3 style={{ marginBottom: 8 }}>📋 Quy tắc đặt tên file</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 14 }}>
+                    <div><code>tv_bai_1.png</code> → <strong>Từ vựng</strong> Bài 1</div>
+                    <div><code>tv_bai_1(1).png</code> → Từ vựng Bài 1 (thêm trang)</div>
+                    <div><code>np_bai_1.png</code> → <strong>Ngữ pháp</strong> Bài 1</div>
+                    <div><code>kanji_bai_1.png</code> → <strong>Kanji</strong> Bài 1</div>
+                </div>
             </div>
 
             {saved ? (
@@ -89,6 +151,7 @@ export default function UploadPage() {
                     <DocumentUploader
                         onResult={(data, fileName, pdfType) => {
                             setError('')
+                            setBatchGroups([])
                             const previewData = data as any
                             setPreview({
                                 vocabulary: previewData?.vocabulary || [],
@@ -99,16 +162,58 @@ export default function UploadPage() {
                             })
                         }}
                         onError={setError}
+                        onBatchResult={(results) => {
+                            setError('')
+                            setPreview(null)
+                            setBatchGroups(groupByLesson(results))
+                        }}
                     />
 
                     {error && <div className={styles.errorBanner}>{error}</div>}
 
-                    {/* Preview */}
+                    {/* Batch Preview */}
+                    {batchGroups.length > 0 && (
+                        <div className={styles.preview}>
+                            <h2>Kết quả phân loại — {batchGroups.reduce((s, g) => s + g.files.length, 0)} file</h2>
+
+                            {batchGroups.map((group, i) => (
+                                <div key={i} className="card" style={{ marginBottom: 12, padding: 16 }}>
+                                    <h3>
+                                        {group.pdfType === 'kanji' ? `漢 Kanji ${group.lessonNumber}` : `📚 Bài ${group.lessonNumber}`}
+                                        <span style={{ fontSize: 13, color: 'var(--text-muted)', marginLeft: 8 }}>
+                                            ({group.files.length} file)
+                                        </span>
+                                    </h3>
+                                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>
+                                        Files: {group.files.map(f => f.fileName).join(', ')}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 16, fontSize: 14 }}>
+                                        {group.vocabulary.length > 0 && <span>📝 {group.vocabulary.length} từ vựng</span>}
+                                        {group.grammar.length > 0 && <span>📖 {group.grammar.length} ngữ pháp</span>}
+                                        {group.kanjiEntries.length > 0 && <span>漢 {group.kanjiEntries.length} kanji</span>}
+                                    </div>
+                                </div>
+                            ))}
+
+                            <div style={{ padding: '12px 0', fontWeight: 600 }}>
+                                Tổng: {totalVocab} từ vựng, {totalGrammar} ngữ pháp, {totalKanji} kanji
+                            </div>
+
+                            <button
+                                className="btn btn-primary btn-lg"
+                                onClick={handleSave}
+                                disabled={saving}
+                            >
+                                {saving ? 'Đang lưu...' : '💾 Lưu tất cả vào thư viện'}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Single file Preview */}
                     {preview && (
                         <div className={styles.preview}>
                             <h2>Kết quả trích xuất — {preview.fileName}</h2>
 
-                            {/* Vocab preview */}
                             {(preview.vocabulary?.length ?? 0) > 0 && (
                                 <section>
                                     <h3>Từ vựng ({preview.vocabulary?.length ?? 0} từ)</h3>
@@ -131,7 +236,6 @@ export default function UploadPage() {
                                 </section>
                             )}
 
-                            {/* Grammar preview */}
                             {(preview.grammar?.length ?? 0) > 0 && (
                                 <section>
                                     <h3>Ngữ pháp ({preview.grammar?.length ?? 0} mục)</h3>
@@ -144,7 +248,6 @@ export default function UploadPage() {
                                 </section>
                             )}
 
-                            {/* Kanji preview */}
                             {(preview.kanjiEntries?.length ?? 0) > 0 && (
                                 <section>
                                     <h3>Kanji ({preview.kanjiEntries!.length} mục)</h3>
