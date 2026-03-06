@@ -17,14 +17,9 @@ interface LessonDao {
     @Query("SELECT * FROM grammar WHERE lessonId = :lessonId")
     fun getGrammarByLesson(lessonId: Long): Flow<List<Grammar>>
     
-    @Transaction
-    suspend fun deleteLesson(lessonId: Long) {
-        // Cascade delete handled by ForeignKeys
-        deleteLessonInternal(lessonId)
-    }
-    
     @Query("DELETE FROM lessons WHERE id = :lessonId")
-    suspend fun deleteLessonInternal(lessonId: Long)
+    suspend fun deleteLesson(lessonId: Long)
+
 }
 
 @Dao
