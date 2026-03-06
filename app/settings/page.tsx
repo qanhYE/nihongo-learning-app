@@ -45,6 +45,42 @@ export default function SettingsPage() {
         }
     }
 
+    const exportData = async () => {
+        try {
+            const lessons = await db.lessons.toArray()
+            const vocabulary = await db.vocabulary.toArray()
+            const grammar = await db.grammar.toArray()
+            const kanjiSets = await db.kanjiSets.toArray()
+            const kanjiEntries = await db.kanjiEntries.toArray()
+            const srsRecords = await db.srsRecords.toArray()
+
+            const data = {
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                lessons,
+                vocabulary,
+                grammar,
+                kanjiSets,
+                kanjiEntries,
+                srsRecords
+            }
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `nihongo_backup_${new Date().toISOString().slice(0, 10)}.json`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+        } catch (err) {
+            console.error('Lỗi khi xuất dữ liệu:', err)
+            alert('Có lỗi xảy ra khi xuất dữ liệu.')
+        }
+    }
+
+
     return (
         <div className="container">
             <div className={styles.header}>
@@ -71,7 +107,16 @@ export default function SettingsPage() {
                 </div>
             </div>
 
+            <div className="card">
+                <div className={styles.settingItem}>
+                    <label>Quản lý dữ liệu</label>
+                    <p className={styles.desc}>Sử dụng file này để chuyển dữ liệu sang ứng dụng Android.</p>
+                    <button className="btn" onClick={exportData}>Xuất dữ liệu (.json)</button>
+                </div>
+            </div>
+
             <div className={styles.dangerZone}>
+
                 <h2>Vùng nguy hiểm</h2>
                 <p className={styles.desc}>Xóa toàn bộ dữ liệu bài học, từ vựng và tiến độ học tập đã lưu trên trình duyệt này.</p>
                 <button className={styles.btnDanger} onClick={clearData}>Xóa toàn bộ dữ liệu</button>
